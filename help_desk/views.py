@@ -116,3 +116,4 @@ class NewCommentView(CreateView):
                 return self.form_valid(form)
         else:
             return self.form_invalid(form)
+

@@ -24,4 +24,5 @@ urlpatterns = [
 
     path('', views.ClaimListView.as_view(), name='claims_list_page'),
 
+
 ]

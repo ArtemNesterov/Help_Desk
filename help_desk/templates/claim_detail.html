@@ -1,10 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content%}
+<div class="container-fluid">
+    <div class="col-5">
+        {% if claim_detail.image %}
+        <img src="{{ claim_detail.image.url }}" width="300" height="200"></a>
+        {% else %}
+        <p></p>
+        {% endif %}
+        <div>
+            <h4>Claim register number: #{{ claim_detail.id }} </h4>
+            <h5>Topic: {{ claim_detail.get_claim_topic_display }}</h5>
+            <h6>Created at: {{ claim_detail.create_at }}</h6>
+            <hr>
+            <h4>Claim text</h4>
+            <h6>{{ claimmodel.text }} </h6>
+        </div>
+        <hr>
+        <h6>Status: {{ claim_detail.get_status_display }} || Priority: {{ claim_detail.get_priority_display }}</h6>
+
+        {% if user.is_staff %}
+        <h6>Claim author: {{ claimmodel.author }}</h6>
+            {% if claimmodel.status == 'PN' %}
+            <a href="{% url 'new_comment' claim_detail.id %}" class="btn btn-danger">DECLINE</a>
+            <br>
+            <form action="" method="post">
+                {% csrf_token %}
+                <label>Confirm the claim:</label>
+                <input type="hidden" name="claim_id" value="{{ claim_detail.id }}">
+                <input type="submit" class="btn btn-primary" value="CONFIRM" name="confirm">
+            </form>
+            <br>
+            {% else %}
+            <form action="" method="post">
+                {% csrf_token %}
+                <label>Claim completed:</label>
+                <input type="hidden" name="claim_id" value="{{ claim_detail.id }}">
+                <input type="submit" class="btn btn-success" value="DONE" name="done">
+            </form>
+            {% endif %}
+
+        {% else %}
+            {% if claimmodel.status == 'DR' %}
+            <a href="{% url 'edit_claim' claim_detail.id %}" class="btn btn-warning">Edit</a>
+            <form action="" method="post">
+                {% csrf_token %}
+                <label>Send your claim for processing:</label>
+                <input type="hidden" name="claim_id" value="{{ claim_detail.id }}">
+                <input type="submit" class="btn btn-success" value="SEND" name="send">
+            </form>
+
+            {% elif claim_detail.status == 'DC'%}
+                {% if claim_detail.declined_status_count < 2 %}
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <label>Restore this claim:</label>
+                    <input type="hidden" name="claim_id" value="{{ claim_detail.id }}">
+                    <input type="submit" class="btn btn-success" value="RESTORE CLAIM" name="restore">
+                </form>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+<p><h2>Comments</h2></p>
+<div class="container-fluid">
+    {% for comment in claim_detail.commentmodel_set.all%}
+    <p>{{ comment.text }}</p>
+    <p><small>{{ comment.create_at }}</small></p>
+        {% if not forloop.last %}
+        <hr style="border-top: 1px dashed rgb(66,66,66)"/>
+        {% endif %}
+    {% endfor %}
+</div>
+<div>
+    {% if claim_detail.status == 'PN' or claimmodel.status == 'IP'%}
+    <a href="{% url 'new_comment' claim_detail.id %}" class="btn btn-primary">Add new comment</a>
+    {% endif %}
+</div>
+
+
+{% endblock%}
