@@ -29,7 +29,7 @@ class Register(CreateView):
     """ Sign UP """
     form_class = RegisterForm
     success_url = "/login/"
-    template_name = "register.html"
+    template_name = "register_page.html"
 
 
 class UserLogout(LoginRequiredMixin, LogoutView):
@@ -51,7 +51,6 @@ Getting a token for a registered user
 
 class ObtainTokenView(APIView):
     http_method_names = ['post']
-    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         user = authenticate(request,

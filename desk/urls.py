@@ -15,14 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 
-from django.urls import path
+from django.urls import path, include
 
 from help_desk import views
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('user/', include('users.urls')),
+
 
     path('', views.ClaimListView.as_view(), name='claims_list_page'),
-
 
 ]
