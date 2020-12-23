@@ -16,21 +16,21 @@ Including another URLconf
 from django.contrib import admin
 
 from django.urls import path, include
+from rest_framework import routers
 
-from help_desk import views
+from help_desk.views import ClaimViewSet
+from users.views import UserViewSet, ObtainTokenView
 
+router = routers.DefaultRouter()
+router.register(r'claims', ClaimViewSet, basename='ClaimModel')
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
+    path('api/', include(router.urls)),
+    path('obtain_token/', ObtainTokenView.as_view()),
     path('admin/', admin.site.urls),
     path('user/', include('users.urls')),
-    path('', views.ClaimListView.as_view(), name='claims_list_page'),
-    path('help_desk/<int:pk>', views.ClaimDetailView.as_view(), name='claim_detail'),
-    path('help_desk/new', views.NewClaimView.as_view(), name='new_claim'),
-    path('help_desk/edit/<int:pk>', views.EditClaimView.as_view(), name='edit_claim'),
-    path('help_desk/delete/<int:pk>', views.ClaimDetailView.as_view(), name='claim_delete'),
-    path('comment/<int:pk>/new', views.NewCommentView.as_view(), name='new_comment'),
-
-
+    path('help/', include('help_desk.urls')),
 
 
 ]

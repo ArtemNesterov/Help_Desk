@@ -3,8 +3,14 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from rest_framework import exceptions
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from help_desk import form
+from help_desk.API.permissions import IsOwner, IsSuperUser
+from help_desk.API.serializers import ForAdminSerializer, ForUserSerializer
 from help_desk.models import ClaimModel, CommentModel
 
 
@@ -119,3 +125,46 @@ class NewCommentView(CreateView):
         else:
             return self.form_invalid(form)
 
+
+class ClaimViewSet(ModelViewSet):
+
+    permission_classes = [IsAuthenticated, IsOwner | IsSuperUser]
+
+    def get_serializer_class(self):
+        if self.request.user.is_staff:
+            return ForAdminSerializer
+        return ForUserSerializer
+
+    def get_queryset(self):
+        priority = self.request.GET.get('priority', None)
+        if priority:
+            return ClaimModel.objects.filter(priority=priority)
+        else:
+            return ClaimModel.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        if self.request.user.is_staff:
+            admin_filter = Q(status='PN') | Q(status='IP')
+            queryset = queryset.filter(admin_filter)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = queryset.filter(author=self.request.user)
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.author == self.request.user or self.request.user.is_superuser:
+            serializer = self.get_serializer(instance)
+        else:
+            raise exceptions.PermissionDenied()
+        return Response(serializer.data)
