@@ -41,7 +41,7 @@ class UserLogout(LoginRequiredMixin, LogoutView):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated, ]
+
 
 
 """

@@ -25,6 +25,7 @@ urlpatterns = [
     path('user/', include('users.urls')),
 
 
-    path('', views.ClaimListView.as_view(), name='claims_list_page'),
+
+    #path('claim_list', views.ClaimListView.as_view(template_name='claims_list.html'), name='claims_list_page'),
 
 ]

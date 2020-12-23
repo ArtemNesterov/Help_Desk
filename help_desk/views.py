@@ -10,7 +10,7 @@ from help_desk.models import ClaimModel, CommentModel
 
 class ClaimListView(ListView):
     model = ClaimModel
-    template_name = 'claims_list.html/'
+    template_name = 'claims_list.html'
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
@@ -38,6 +38,7 @@ class ClaimListView(ListView):
 
 class ClaimDetailView(DetailView):
     model = ClaimModel
+    template_name = 'claim_detail.html'
 
     def post(self, request, *args, **kwargs):
         claim_id = request.POST.get('claim_id', '')
@@ -86,6 +87,7 @@ class ClaimDeleteView(DeleteView):
 class NewCommentView(CreateView):
     model = CommentModel
     form_class = form.CommentForm
+    template_name = 'commentmodel_form.html'
     success_url = reverse_lazy('claims_list_page')
 
     def get_initial(self):
