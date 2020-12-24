@@ -29,8 +29,9 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('obtain_token/', ObtainTokenView.as_view()),
     path('admin/', admin.site.urls),
+    path('', include('help_desk.urls')),
     path('user/', include('users.urls')),
-    path('help/', include('help_desk.urls')),
+
 
 
 ]

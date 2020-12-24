@@ -39,7 +39,7 @@ class ClaimListView(ListView):
         else:
             claim.status = 'PN'
         claim.save()
-        return HttpResponseRedirect()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class ClaimDetailView(DetailView):
@@ -93,7 +93,7 @@ class ClaimDeleteView(DeleteView):
 class NewCommentView(CreateView):
     model = CommentModel
     form_class = form.CommentForm
-    template_name = 'commentmodel_form.html'
+   # template_name = 'commentmodel_form.html'
     success_url = reverse_lazy('claims_list_page')
 
     def get_initial(self):

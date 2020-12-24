@@ -41,7 +41,7 @@ class UserLogout(LoginRequiredMixin, LogoutView):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
+    permission_classes = [IsAuthenticated, ]
 
 
 """
@@ -51,6 +51,7 @@ Getting a token for a registered user
 
 class ObtainTokenView(APIView):
     http_method_names = ['post']
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         user = authenticate(request,
